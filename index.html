@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Placement & Internship Portal | CareerSync Pro</title>
+    <meta name="description" content="A comprehensive, premium campus placement and internship management platform for students, recruiters, and TPOs.">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. FULL SCREEN AUTHENTICATION GATEWAY -->
+    <div id="auth-screen" class="auth-screen-overlay">
+        <div class="auth-ambient-glows">
+            <div class="glow-circle primary"></div>
+            <div class="glow-circle secondary"></div>
+        </div>
+        
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-logo">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L1 7l11 5 9-4.09V17a1 1 0 002 0V7.91L12 2M4.5 12.63v4.62c0 .82.66 1.48 1.48 1.48h12.04c.82 0 1.48-.66 1.48-1.48v-4.62L12 16l-7.5-3.37z" />
+                    </svg>
+                </div>
+                <h2 class="auth-title">CareerSync Pro</h2>
+                <p class="auth-subtitle">Campus Placement & Training Portal</p>
+            </div>
+
+            <!-- Login / Signup tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="auth-tab-login" onclick="app.setAuthTab('login')">Login</button>
+                <button class="auth-tab" id="auth-tab-signup" onclick="app.setAuthTab('signup')">Register</button>
+            </div>
+
+            <!-- Role Selector Card Grid -->
+            <div class="role-radio-group">
+                <div class="role-radio-card active" id="role-card-student" onclick="app.setAuthRole('student')">
+                    <input type="radio" name="auth-role" value="student" checked>
+                    <span class="role-radio-icon">🎓</span>
+                    <span class="role-radio-label">Student</span>
+                </div>
+                <div class="role-radio-card" id="role-card-recruiter" onclick="app.setAuthRole('recruiter')">
+                    <input type="radio" name="auth-role" value="recruiter">
+                    <span class="role-radio-icon">🏢</span>
+                    <span class="role-radio-label">Recruiter</span>
+                </div>
+                <div class="role-radio-card" id="role-card-admin" onclick="app.setAuthRole('admin')">
+                    <input type="radio" name="auth-role" value="admin">
+                    <span class="role-radio-icon">🔑</span>
+                    <span class="role-radio-label">TPO Admin</span>
+                </div>
+            </div>
+
+            <!-- Authentication Form -->
+            <form id="auth-form" onsubmit="app.handleAuthSubmit(event)">
+                <div class="form-group" id="auth-name-group" style="display: none;">
+                    <label for="auth-name">Full Name</label>
+                    <input type="text" id="auth-name" class="form-control" placeholder="John Doe">
+                </div>
+                
+                <!-- Student-specific signup fields -->
+                <div class="form-row" id="auth-student-row" style="display: none;">
+                    <div class="form-group">
+                        <label for="auth-branch">Branch / Stream</label>
+                        <select id="auth-branch" class="form-control">
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Electronics & Comm">Electronics & Comm</option>
+                            <option value="Electrical Engineering">Electrical Engineering</option>
+                            <option value="Mechanical Engineering">Mechanical Engineering</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="auth-cgpa">CGPA</label>
+                        <input type="number" id="auth-cgpa" class="form-control" step="0.01" min="0" max="10" placeholder="8.50">
+                    </div>
+                </div>
+
+                <!-- Recruiter-specific signup fields -->
+                <div class="form-group" id="auth-recruiter-group" style="display: none;">
+                    <label for="auth-company">Company Name</label>
+                    <input type="text" id="auth-company" class="form-control" placeholder="e.g. Google, Microsoft">
+                </div>
+
+                <div class="form-group">
+                    <label for="auth-email">Email Address</label>
+                    <input type="email" id="auth-email" class="form-control" placeholder="name@careersync.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="auth-password">Password</label>
+                    <input type="password" id="auth-password" class="form-control" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block" id="auth-submit-btn">Sign In</button>
+            </form>
+
+            <!-- Quick Demo Bypass Grid -->
+            <div class="quick-login-panel">
+                <div class="quick-login-title">Quick Demo Login</div>
+                <div class="quick-login-grid">
+                    <button class="quick-login-btn" onclick="app.quickDemoLogin('student')">🎓 Student</button>
+                    <button class="quick-login-btn" onclick="app.quickDemoLogin('recruiter')">🏢 Recruiter</button>
+                    <button class="quick-login-btn" onclick="app.quickDemoLogin('admin')">🔑 TPO Admin</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Hub -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- MAIN PLATFORM INTERFACE LAYOUT -->
+    <div class="app-wrapper">
+
+        <!-- Top Navigation Bar -->
+        <header class="top-utility-bar">
+            <div class="brand-section" onclick="app.navigateTo('landing')">
+                <div class="brand-logo-container">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L1 7l11 5 9-4.09V17a1 1 0 002 0V7.91L12 2M4.5 12.63v4.62c0 .82.66 1.48 1.48 1.48h12.04c.82 0 1.48-.66 1.48-1.48v-4.62L12 16l-7.5-3.37z" />
+                    </svg>
+                </div>
+                <span class="brand-name">CareerSync Pro</span>
+            </div>
+
+            <!-- Header Action Center -->
+            <div class="header-actions-hub">
+                <!-- Theme Toggler Button -->
+                <button class="action-btn-icon" id="theme-toggle-btn" onclick="app.toggleTheme()" title="Toggle Dark/Light Mode">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path id="theme-btn-sun" d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0 M12 2v2 M12 20v2 M4.22 4.22l1.42 1.42 M18.36 18.36l1.42 1.42 M2 12h2 M20 12h2 M4.22 19.78l1.42-1.42 M18.36 5.64l1.42-1.42" />
+                    </svg>
+                </button>
+
+                <!-- Notifications Center Dropdown -->
+                <div style="position: relative;">
+                    <button class="action-btn-icon" onclick="app.toggleNotifDropdown()" title="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
+                        <span class="badge-count" id="notif-badge" style="display: none;">0</span>
+                    </button>
+                    
+                    <div id="notif-dropdown" class="notification-dropdown">
+                        <div class="notif-dropdown-header">
+                            <span class="notif-dropdown-title">Recent Alerts</span>
+                            <button class="notif-dropdown-clear" onclick="app.clearNotifications()">Clear All</button>
+                        </div>
+                        <div class="notif-list-container" id="notif-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sidebar Navigation Menu -->
+        <aside class="sidebar">
+            <ul class="nav-menu">
+                <li>
+                    <button class="nav-item-btn active" id="nav-btn-explore" onclick="app.navigateTo('landing')">
+                        <svg viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="9" rx="1" />
+                            <rect x="14" y="3" width="7" height="5" rx="1" />
+                            <rect x="14" y="12" width="7" height="9" rx="1" />
+                            <rect x="3" y="16" width="7" height="5" rx="1" />
+                        </svg>
+                        <span>Explore Jobs</span>
+                    </button>
+                </li>
+                <li id="menu-item-student-dash">
+                    <button class="nav-item-btn" id="nav-btn-student-dash" onclick="app.navigateTo('student-dashboard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                        </svg>
+                        <span>Student Board</span>
+                    </button>
+                </li>
+                <li id="menu-item-recruiter-dash" style="display: none;">
+                    <button class="nav-item-btn" id="nav-btn-recruiter-dash" onclick="app.navigateTo('recruiter-dashboard')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                        </svg>
+                        <span>Recruiter Board</span>
+                    </button>
+                </li>
+                <li id="menu-item-admin-dash" style="display: none;">
+                    <button class="nav-item-btn" id="nav-btn-admin-dash" onclick="app.navigateTo('admin-dashboard')">
+                        <svg viewBox="0 0 24 24">
+                            <line x1="18" y1="20" x2="18" y2="10" />
+                            <line x1="12" y1="20" x2="12" y2="4" />
+                            <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        <span>TPO Cell</span>
+                    </button>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <div class="user-profile-badge">
+                    <div class="profile-avatar" id="sidebar-avatar">U</div>
+                    <div class="profile-info">
+                        <span class="profile-name" id="sidebar-user-name">Guest User</span>
+                        <span class="profile-role" id="sidebar-user-role">Student</span>
+                    </div>
+                </div>
+                <button class="btn btn-secondary btn-block logout-btn-sidebar" onclick="app.handleLogout()">Log Out</button>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Viewport -->
+        <main class="main-content">
+
+            <!-- VIEW 1: LANDING PAGE -->
+            <section id="view-landing" class="view-container active">
+                <div class="hero-section">
+                    <div class="hero-glow"></div>
+                    <span class="hero-badge">Verified Recruitment Drive</span>
+                    <h1 class="hero-title">Unlock Your Next <span class="gradient-text">Career Milestone</span></h1>
+                    <p class="hero-subtitle">Discover top placement offers, exclusive internships, and campus roles verified by the TPO Cell.</p>
+                </div>
+
+                <!-- Statistics Widgets Grid -->
+                <div class="stats-grid" id="landing-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper primary">🎓</div>
+                        <div class="stat-number" id="stat-placements">1,248</div>
+                        <div class="stat-label">Students Placed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper success">🏢</div>
+                        <div class="stat-number" id="stat-companies">142</div>
+                        <div class="stat-label">Active Companies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper warning">🏆</div>
+                        <div class="stat-number" id="stat-avg-package">14.8 LPA</div>
+                        <div class="stat-label">Average Stipend / CTC</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper secondary">📢</div>
+                        <div class="stat-number" id="stat-total-jobs">78</div>
+                        <div class="stat-label">Open Vacancies</div>
+                    </div>
+                </div>
+
+                <!-- Job Search Bar and Filters -->
+                <div class="search-filter-container">
+                    <div class="search-bar-row">
+                        <div class="search-input-wrapper">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <input type="text" id="job-search-input" placeholder="Search vacancies, tech stack, skills or companies..." oninput="app.filterJobs()">
+                        </div>
+                    </div>
+                    <div class="filter-row" style="margin-top: 12px;">
+                        <select id="filter-type" class="filter-select" onchange="app.filterJobs()">
+                            <option value="">All Types (Fulltime / Internship)</option>
+                            <option value="Internship">Internships Only</option>
+                            <option value="Fulltime">Fulltime Only</option>
+                        </select>
+                        <select id="filter-category" class="filter-select" onchange="app.filterJobs()">
+                            <option value="">All Tech Roles</option>
+                            <option value="Software Engineer">Software Engineering</option>
+                            <option value="Data Scientist">Data Science</option>
+                            <option value="Product Manager">Product Management</option>
+                            <option value="Analyst">Analyst</option>
+                            <option value="Designer">UI/UX Design</option>
+                        </select>
+                        <select id="filter-location" class="filter-select" onchange="app.filterJobs()">
+                            <option value="">All Locations</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Onsite">Onsite</option>
+                            <option value="Hybrid">Hybrid</option>
+                        </select>
+                        <button class="btn btn-secondary" onclick="app.resetFilters()">Clear Filters</button>
+                    </div>
+                </div>
+
+                <!-- Opportunities Listings Header -->
+                <div class="dashboard-header">
+                    <div class="dashboard-title-section">
+                        <h2>Available Opportunities</h2>
+                        <span class="dashboard-subtitle">Apply directly below or view full details</span>
+                    </div>
+                </div>
+
+                <div class="job-grid" id="jobs-listings-grid">
+                    <!-- Rendered Dynamically -->
+                </div>
+            </section>
+
+
+            <!-- VIEW 2: STUDENT DASHBOARD -->
+            <section id="view-student-dashboard" class="view-container">
+                <div class="dashboard-header">
+                    <div class="dashboard-title-section">
+                        <h1>Student Portal</h1>
+                        <span class="dashboard-subtitle">Manage your profile, compile your resume, and check test badges.</span>
+                    </div>
+                    <div class="profile-progress-widget">
+                        <div class="gauge-circle">
+                            <svg width="70" height="70">
+                                <circle class="gauge-bg" cx="35" cy="35" r="32"/>
+                                <circle class="gauge-bar" id="profile-gauge-bar" cx="35" cy="35" r="32"/>
+                            </svg>
+                            <div class="gauge-value-text" id="profile-percent-text">0%</div>
+                        </div>
+                        <div>
+                            <h4 style="font-size:0.95rem; margin-bottom: 2px;">Profile Strength</h4>
+                            <p style="font-size:0.75rem; color:var(--text-secondary);" id="profile-completion-status">Complete your resume parameters to unlock applications.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid-2x1">
+                    <!-- Left: Resume Compiler Wizard -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">📝 Resume Builder & Compiler</span>
+                            <button class="btn btn-outline-primary btn-sm" onclick="app.compileResume()">Compile Live Preview</button>
+                        </div>
+
+                        <!-- Wizard Steps Tabs -->
+                        <div class="wizard-tabs">
+                            <button class="wizard-tab-step active" id="wiz-step-btn-1" onclick="app.setWizardStep(1)">1. Contact</button>
+                            <button class="wizard-tab-step" id="wiz-step-btn-2" onclick="app.setWizardStep(2)">2. Education</button>
+                            <button class="wizard-tab-step" id="wiz-step-btn-3" onclick="app.setWizardStep(3)">3. Experience</button>
+                            <button class="wizard-tab-step" id="wiz-step-btn-4" onclick="app.setWizardStep(4)">4. Projects</button>
+                        </div>
+
+                        <form id="resume-wizard-form">
+                            <!-- Step 1: Contact Info -->
+                            <div class="wizard-panel active" id="wiz-panel-1">
+                                <div class="form-group">
+                                    <label for="wiz-email">Professional Email</label>
+                                    <input type="email" id="wiz-email" class="form-control" placeholder="saumya@careersync.com" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wiz-phone">Phone Number</label>
+                                    <input type="text" id="wiz-phone" class="form-control" placeholder="+91 98765 43210" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wiz-github">GitHub Profile / Website</label>
+                                    <input type="text" id="wiz-github" class="form-control" placeholder="github.com/saumyaverma" required>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Education -->
+                            <div class="wizard-panel" id="wiz-panel-2">
+                                <div class="form-group">
+                                    <label for="wiz-college">University/College</label>
+                                    <input type="text" id="wiz-college" class="form-control" placeholder="National Institute of Technology" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="wiz-degree">Degree & Branch</label>
+                                        <input type="text" id="wiz-degree" class="form-control" placeholder="B.Tech, CSE" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="wiz-grad-year">Graduation Year</label>
+                                        <input type="number" id="wiz-grad-year" class="form-control" placeholder="2027" required>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Work Experience -->
+                            <div class="wizard-panel" id="wiz-panel-3">
+                                <div class="form-group">
+                                    <label for="wiz-company">Company / Organization</label>
+                                    <input type="text" id="wiz-company" class="form-control" placeholder="Microsoft (Mock Internship)">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="wiz-role">Job Title / Role</label>
+                                        <input type="text" id="wiz-role" class="form-control" placeholder="Software Engineering Intern">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="wiz-duration">Duration</label>
+                                        <input type="text" id="wiz-duration" class="form-control" placeholder="May 2026 - Present">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wiz-exp-desc">Key Responsibilities / Deliverables</label>
+                                    <textarea id="wiz-exp-desc" class="form-control" rows="2" placeholder="Developed frontend modules, scaled user profile database query latency..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Projects & Skills -->
+                            <div class="wizard-panel" id="wiz-panel-4">
+                                <div class="form-group">
+                                    <label for="wiz-proj-title">Project Title</label>
+                                    <input type="text" id="wiz-proj-title" class="form-control" placeholder="E-commerce Analytics Panel" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wiz-proj-desc">Project Description</label>
+                                    <textarea id="wiz-proj-desc" class="form-control" rows="2" placeholder="Designed client-side SVG charting engine, integrated REST APIs, and achieved 100% test coverage." required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="wiz-skills">Core Technical Skills (Comma separated)</label>
+                                    <input type="text" id="wiz-skills" class="form-control" placeholder="React, Node.js, Python, SQL, Git" required>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right: Skill Testing Verification Center -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">🏆 Skill Verification Badges</span>
+                        </div>
+                        
+                        <div id="assessment-selection-view">
+                            <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom: 16px;">Pass mock coding tests to earn a verified developer badge. Verified badges are displayed directly to recruiters reviewing applications.</p>
+                            
+                            <div class="form-group">
+                                <label for="assessment-select">Choose Technology Test</label>
+                                <select id="assessment-select" class="form-control">
+                                    <option value="js">JavaScript Essentials (5 MCQs)</option>
+                                    <option value="python">Python Programming (5 MCQs)</option>
+                                    <option value="dsa">Data Structures & Algos (5 MCQs)</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="app.startAssessment()">Begin Verification Test</button>
+                            
+                            <div id="verified-badges-container" style="margin-top: 24px; border-top:1px solid var(--border-color); padding-top:16px;">
+                                <h4 style="font-size:0.85rem; margin-bottom: 8px;">Your Verified Badges:</h4>
+                                <div id="badges-list-holder" style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    <span style="font-size:0.8rem; color:var(--text-muted);">None earned yet. Complete a test above.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MCQ Assessment Display Form -->
+                        <div id="assessment-question-view" style="display: none;">
+                            <div class="timer-bar-container">
+                                <div id="timer-bar-fill" class="timer-bar-fill"></div>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+                                <span style="font-size:0.75rem; color:var(--text-secondary);" id="assessment-question-counter">Question 1 of 5</span>
+                                <span style="font-size:0.75rem; font-weight:700; color:var(--warning);" id="assessment-timer-text">Time remaining: 15s</span>
+                            </div>
+                            <div class="question-text" id="assessment-question-text">Loading question content...</div>
+                            <div class="options-list" id="assessment-options-list">
+                                <!-- Options populated dynamically -->
+                            </div>
+                            <button class="btn btn-primary" onclick="app.submitMCQAnswer()">Submit Answer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid-equal">
+                    <!-- Section A: Student Applications status list -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">📂 Filed Applications Status</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Company</th>
+                                        <th>Role</th>
+                                        <th>Applied</th>
+                                        <th>Status</th>
+                                        <th>Timeline</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="student-applications-table">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Section B: Announcements Board -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">📢 Training Cell Updates</span>
+                        </div>
+                        <div class="announcements-list" id="student-announcements-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Section C: Interviews Calendar -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">📅 Upcoming Interviews</span>
+                        </div>
+                        <div class="announcements-list" id="student-interviews-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- VIEW 3: RECRUITER DASHBOARD -->
+            <section id="view-recruiter-dashboard" class="view-container">
+                <div class="dashboard-header">
+                    <div class="dashboard-title-section">
+                        <h1>Recruiter Dashboard</h1>
+                        <span class="dashboard-subtitle">Search candidate registries, filter skill badges, and post vacancies.</span>
+                    </div>
+                </div>
+
+                <!-- Recruiter search filter center -->
+                <div class="card-panel" style="margin-bottom: 24px;">
+                    <div class="card-panel-header">
+                        <span class="card-panel-title">🔍 Search Talent Database</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="rec-search-name">Search Student Name</label>
+                            <input type="text" id="rec-search-name" class="form-control" placeholder="Search name or skill..." oninput="app.filterStudents()">
+                        </div>
+                        <div class="form-group">
+                            <label for="rec-filter-branch">Branch Filter</label>
+                            <select id="rec-filter-branch" class="form-control" onchange="app.filterStudents()">
+                                <option value="">All Streams</option>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Electronics & Comm">Electronics & Comm</option>
+                                <option value="Electrical Engineering">Electrical Engineering</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="rec-filter-cgpa">Min CGPA</label>
+                            <input type="number" id="rec-filter-cgpa" class="form-control" min="0" max="10" step="0.1" placeholder="7.0" oninput="app.filterStudents()">
+                        </div>
+                        <div class="form-group">
+                            <label for="rec-filter-badge">Verified Badge</label>
+                            <select id="rec-filter-badge" class="form-control" onchange="app.filterStudents()">
+                                <option value="">Any</option>
+                                <option value="JS Verified">JavaScript Verified</option>
+                                <option value="Python Verified">Python Verified</option>
+                                <option value="DSA Verified">DSA Verified</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid-2x1">
+                    <!-- Vacancies list -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">🏢 Active Job Openings</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vacancy Info</th>
+                                        <th>Category</th>
+                                        <th>Type</th>
+                                        <th>Applied</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recruiter-jobs-table">
+                                    <!-- Rendered dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Job post form -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Post New Opportunity</span>
+                        </div>
+                        <form id="post-job-form" onsubmit="app.handlePostJob(event)">
+                            <div class="form-group">
+                                <label for="job-post-title">Job Title</label>
+                                <input type="text" id="job-post-title" class="form-control" placeholder="e.g. Software Engineer" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="job-post-type">Type</label>
+                                    <select id="job-post-type" class="form-control" required>
+                                        <option value="Internship">Internship</option>
+                                        <option value="Fulltime">Fulltime (Job)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-post-category">Category</label>
+                                    <select id="job-post-category" class="form-control" required>
+                                        <option value="Software Engineer">Software Engineering</option>
+                                        <option value="Data Scientist">Data Science</option>
+                                        <option value="Product Manager">Product Management</option>
+                                        <option value="Analyst">Analyst</option>
+                                        <option value="Designer">UI/UX Design</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="job-post-salary">CTC / Package</label>
+                                    <input type="text" id="job-post-salary" class="form-control" placeholder="e.g. 14 LPA" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="job-post-location">Location</label>
+                                    <input type="text" id="job-post-location" class="form-control" placeholder="e.g. Bangalore, Remote" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-post-skills">Skills Required (Comma separated)</label>
+                                <input type="text" id="job-post-skills" class="form-control" placeholder="React, Python, SQL" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="job-post-desc">Description</label>
+                                <textarea id="job-post-desc" class="form-control" rows="3" placeholder="Brief job specifications..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Publish Opening</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Applications action panel -->
+                <div class="card-panel" style="margin-top: 24px;">
+                    <div class="card-panel-header">
+                        <span class="card-panel-title">👥 Candidate Applications Action Board</span>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Candidate Name</th>
+                                    <th>Role Applied</th>
+                                    <th>Branch & CGPA</th>
+                                    <th>Verifications</th>
+                                    <th>Applied Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recruiter-applicants-table">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- VIEW 4: TPO ADMIN DASHBOARD -->
+            <section id="view-admin-dashboard" class="view-container">
+                <div class="dashboard-header">
+                    <div class="dashboard-title-section">
+                        <h1>Training & Placement Cell Cell Portal</h1>
+                        <span class="dashboard-subtitle">Manage announcements, approve companies, and analyze stats.</span>
+                    </div>
+                </div>
+
+                <!-- TPO Metrics Row -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper primary">📊</div>
+                        <div class="stat-number" id="admin-stat-total-applied">240</div>
+                        <div class="stat-label">Total Applications Filed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper success">🏆</div>
+                        <div class="stat-number" id="admin-stat-ratio">0%</div>
+                        <div class="stat-label">Placement Ratio</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper warning">🏢</div>
+                        <div class="stat-number" id="admin-stat-pending-verify">3</div>
+                        <div class="stat-label">Pending Verifications</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon-wrapper secondary">📢</div>
+                        <div class="stat-number" id="admin-stat-announcements">6</div>
+                        <div class="stat-label">Broadcast Bulletins</div>
+                    </div>
+                </div>
+
+                <!-- High-Level SVG Chart Analytics Panels -->
+                <div class="dashboard-grid-equal" style="margin-bottom: 24px;">
+                    <!-- Chart 1: Placement Donut Ratio Chart -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Placement Ratio Distribution</span>
+                        </div>
+                        <div class="chart-container-wrapper" id="donut-chart-holder">
+                            <!-- SVG Donut Chart drawn dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Chart 2: Package Comparison Bar Chart -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Average CTC (LPA) by Company</span>
+                        </div>
+                        <div class="chart-container-wrapper" id="bar-chart-holder">
+                            <!-- SVG Bar Chart drawn dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Chart 3: Sparkline Placements progress -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Placements Trend (2026 Drives)</span>
+                        </div>
+                        <div class="chart-container-wrapper" id="line-chart-holder">
+                            <!-- SVG Line Chart drawn dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid-1x2">
+                    <!-- Announcement publisher -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Broadcast Annoucement</span>
+                        </div>
+                        <form id="admin-announcement-form" onsubmit="app.handlePostAnnouncement(event)">
+                            <div class="form-group">
+                                <label for="announcement-title-input">Headline</label>
+                                <input type="text" id="announcement-title-input" class="form-control" placeholder="TCS core application deadline extended" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="announcement-body-input">Details</label>
+                                <textarea id="announcement-body-input" class="form-control" rows="4" placeholder="Write full bulletin instructions here..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Broadcast Alert</button>
+                        </form>
+                    </div>
+
+                    <!-- Company Approval list -->
+                    <div class="card-panel">
+                        <div class="card-panel-header">
+                            <span class="card-panel-title">Pending Approvals Drive</span>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Approvals Details</th>
+                                        <th>Contact Email</th>
+                                        <th>Reason/Package</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-verification-table">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Complete Student Registry Database -->
+                <div class="card-panel" style="margin-top: 24px;">
+                    <div class="card-panel-header">
+                        <span class="card-panel-title">🎓 Student Placement Registry</span>
+                        <button class="btn btn-secondary btn-sm" onclick="app.exportStudentCSV()">Export Database CSV</button>
+                    </div>
+                    <div class="table-wrapper">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student Name</th>
+                                    <th>Branch / Stream</th>
+                                    <th>GPA</th>
+                                    <th>Verification Test Badges</th>
+                                    <th>Active Apps</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-students-table">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Copyright and Platform Footer -->
+            <footer>
+                <p>&copy; 2026 CareerSync Pro Portal. Designed for enterprise recruitment analytics. Fully hostable static prototype.</p>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- MODAL 1: GENERAL JOB OPPORTUNITY DETAIL -->
+    <div id="job-detail-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="app.closeJobModal()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div id="modal-content-body">
+                <!-- Content generated dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: APPLICATION STATUS TIMELINE PROGRESS -->
+    <div id="timeline-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px;">
+            <button class="modal-close-btn" onclick="app.closeTimelineModal()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <h3 style="margin-bottom: 20px;">Application Progress Timeline</h3>
+            <div class="timeline" id="timeline-progress-container">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 3: RECRUITER SCHEDULING INTERVIEW FORM -->
+    <div id="schedule-interview-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 400px;">
+            <button class="modal-close-btn" onclick="app.closeScheduleModal()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <h3 style="margin-bottom: 20px;">Schedule Candidate Interview</h3>
+            <form id="schedule-interview-form" onsubmit="app.handleScheduleInterview(event)">
+                <input type="hidden" id="schedule-app-id">
+                <div class="form-group">
+                    <label for="interview-date">Interview Date</label>
+                    <input type="date" id="interview-date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="interview-time">Interview Time</label>
+                    <input type="time" id="interview-time" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="interview-link">Meeting Link / Room</label>
+                    <input type="text" id="interview-link" class="form-control" placeholder="Google Meet link or Room Number" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Confirm Schedule</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 4: DYNAMIC RESUME LIVE PREVIEW SHEET -->
+    <div id="resume-preview-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 800px;">
+            <button class="modal-close-btn" onclick="app.closeResumeModal()">
+                <svg viewBox="0 0 24 24" fill="none">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+                <h3>Compiled Professional Resume</h3>
+                <button class="btn btn-primary btn-sm" onclick="window.print()">🖨️ Print Resume</button>
+            </div>
+            <div id="resume-sheet-body" class="resume-preview-sheet">
+                <!-- Renders dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
